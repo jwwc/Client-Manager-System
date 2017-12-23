@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.HouseMemberMapper" >
+  <resultMap id="BaseResultMap" type="com.itheima.po.HouseMember" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="belong_house_id" property="belongHouseId" jdbcType="BIGINT" />
+    <result column="relationship" property="relationship" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="birthday" property="birthday" jdbcType="TIMESTAMP" />
+    <result column="telephone" property="telephone" jdbcType="VARCHAR" />
+    <result column="memo" property="memo" jdbcType="VARCHAR" />
+    <result column="master_name" property="masterName" jdbcType="VARCHAR" />    
+    <result column="house_address" property="houseAddress" jdbcType="VARCHAR" />     
+    <result column="birthday_flag" property="birthdayFlag" jdbcType="VARCHAR" /> 
+    <result column="master_flag" property="masterFlag" jdbcType="VARCHAR" />            
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, belong_house_id, relationship, sex, DATE_FORMAT(birthday,'%Y-%m-%d')as birthday, telephone, memo,birthday_flag,master_flag
+  </sql>
+  
+  
+  	<!-- 分页查询  -->
+	<select id="searchPage"
+		parameterType="com.itheima.po.HouseMemberSearcher"
+		resultMap="BaseResultMap">
+		select    
+		a.id, a.name, a.belong_house_id, a.relationship, a.sex, DATE_FORMAT(a.birthday,'%Y-%m-%d')as birthday, 
+		a.telephone, a.memo,b.name as master_name ,b.address as house_address,a.birthday_flag,a.master_flag
+		from
+		t_house_member a
+		JOIN t_house_master b ON a.belong_house_id = b.id
+		<where>
+			  <if test="name != null" >
+		        a.name LIKE CONCAT ('%',#{name},'%')
+		      </if>
+		      <if test="belongHouseId != null and belongHouseId !=''" >
+		       and  a.belong_house_id = #{belongHouseId,jdbcType=BIGINT}
+		      </if>
+		      <if test="houseAddress != null and houseAddress !=''" >
+		        and b.address  LIKE CONCAT ('%',#{houseAddress},'%')
+		      </if>			      		      
+		      <if test="sex != null" >
+		        and a.sex = #{sex,jdbcType=VARCHAR}
+		      </if>
+		      <if test="birthday != null" >
+		        and a.birthday = #{birthday,jdbcType=TIMESTAMP}
+		      </if>
+		      <if test="telephone != null" >
+		       and  a.telephone = #{telephone,jdbcType=VARCHAR}
+		      </if>
+		         and a.master_flag = '0'
+	</where>
+		order by a.ID DESC
+	</select>  
+	
+	
+	
+  	<!-- 生日查询 -->
+	<select id="queryByBirthday"
+		parameterType="com.itheima.po.HouseMasterSearcher"
+		resultMap="BaseResultMap">
+		select
+		  <!--  a.id, a.name, a.sex, b.address, a.telephone, a.memo,DATE_FORMAT(a.birthday,'%Y-%m-%d')as birthday -->
+		  a.belong_house_id, a.id, a.name, a.sex, b.address, a.telephone, a.memo,DATE_FORMAT(a.birthday,'%Y-%m-%d')as birthday
+		from
+		t_house_member a 
+		join t_house_master b on a.belong_house_id=b.id
+		<where>
+		      <if test="id != null" >
+		        and  b.id = #{id}
+		      </if>		
+		      <if test="sex != null" >
+		        and a.sex = #{sex,jdbcType=VARCHAR}
+		      </if>
+		      <if test="month != null and month!=''" >
+		        and  month(a.birthday) = #{month}
+		      </if>
+		      <if test="day != null and day!=''" >
+		        and  day(a.birthday) = #{day}
+		      </if>			           
+		      <if test="telephone != null" >
+		        and a.telephone = #{telephone,jdbcType=VARCHAR}
+		      </if>
+	</where>
+		order by a.ID DESC
+	</select>	
+	
+  
+ <select id="listMembersByBirthday" resultMap="BaseResultMap" parameterType="com.itheima.po.HouseMasterSearcher">
+   select
+  		a.id,a.name,a.belong_house_id,a.relationship,a.sex,DATE_FORMAT(a.birthday,'%Y-%m-%d')as birthday,a.telephone,a.memo,b.name as master_name,a.master_flag
+   FROM
+	t_house_member a
+   JOIN t_house_master b ON a.belong_house_id = b.id
+	<where>
+		  <if test="id != null" >
+	        a.belong_house_id = #{id,jdbcType=VARCHAR}
+	      </if>
+	      <if test="month != null and month!=''" >
+	        and  month(a.birthday) = #{month}
+	      </if>
+	      <if test="day != null and day!=''" >
+	        and  day(a.birthday) = #{day}
+	      </if>			           
+		</where>
+  </select>
+  
+  
+ <select id="listMembers" resultMap="BaseResultMap" parameterType="java.lang.Long">
+   select
+  		a.id,a.name,a.belong_house_id,a.relationship,a.sex,DATE_FORMAT(a.birthday,'%Y-%m-%d')as birthday,
+  		a.telephone,a.memo,b.name as master_name,a.master_flag,b.address as house_address
+   FROM
+	t_house_member a
+   JOIN t_house_master b ON a.belong_house_id = b.id
+   where a.belong_house_id=#{id}
+  </select>  
+  
+  
+ <select id="listAll" resultMap="BaseResultMap">
+   select
+  	 <include refid="Base_Column_List" />
+ FROM
+	t_house_member a
+JOIN t_house_master b ON a.belong_house_id = b.id
+  where 1=1
+  </select>  
+  
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_house_member
+    where id = #{id,jdbcType=BIGINT}
+  </select>  
+  
+  <!--根据户主id以及户主标识查询对应子表户主信息 -->
+    <select id="getByMasterFlag" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_house_member
+    where belong_house_id = #{masterId,jdbcType=BIGINT}
+    and master_flag='1'
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_house_member
+    where id = #{id,jdbcType=BIGINT}
+  </delete>   
+  <!-- 根据户主id删除所有成员信息 -->
+  <delete id="deleteByHouseMasterId" parameterType="java.lang.Long" >
+    delete from t_house_member
+    where belong_house_id = #{masterId,jdbcType=BIGINT}
+  </delete>
+  
+  <!-- 根据成员id删除个别成员信息 -->
+  <delete id="deleteByMemberId" parameterType="java.lang.Long" >
+    delete from t_house_member
+    where id = #{belong_house_id,jdbcType=BIGINT}
+  </delete> 
+   
+  <insert id="insert" parameterType="com.itheima.po.HouseMember" >
+    insert into t_house_member (id, name, belong_house_id, 
+      relationship, sex, birthday, 
+      telephone, memo,birthday_flag,master_flag)
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{belongHouseId,jdbcType=BIGINT}, 
+      #{relationship,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}, #{birthday,jdbcType=TIMESTAMP}, 
+      #{telephone,jdbcType=VARCHAR}, #{memo,jdbcType=VARCHAR},#{birthdayFlag,jdbcType=VARCHAR},
+      #{masterFlag,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.itheima.po.HouseMember" >
+    insert into t_house_member
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="belongHouseId != null" >
+        belong_house_id,
+      </if>
+      <if test="relationship != null" >
+        relationship,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="birthday != null" >
+        birthday,
+      </if>
+      <if test="telephone != null" >
+        telephone,
+      </if>
+      <if test="memo != null" >
+        memo,
+      </if>
+      <if test="birthdayFlag != null" >
+        birthday_flag,
+      </if> 
+      <if test="masterFlag != null" >
+        master_flag,
+      </if>               
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="belongHouseId != null" >
+        #{belongHouseId,jdbcType=BIGINT},
+      </if>
+      <if test="relationship != null" >
+        #{relationship,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null" >
+        #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="telephone != null" >
+        #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="birthdayFlag != null" >
+        #{birthdayFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="masterFlag != null" >
+        #{masterFlag,jdbcType=VARCHAR},
+      </if>               
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.itheima.po.HouseMember" >
+    update t_house_member
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="belongHouseId != null" >
+        belong_house_id = #{belongHouseId,jdbcType=BIGINT},
+      </if>
+      <if test="relationship != null" >
+        relationship = #{relationship,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null" >
+        birthday = #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="telephone != null" >
+        telephone = #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="birthdayFlag != null" >
+        birthday_flag = #{birthdayFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="masterFlag != null" >
+        master_flag = #{masterFlag,jdbcType=VARCHAR},
+      </if>                  
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.itheima.po.HouseMember" >
+    update t_house_member
+    set name = #{name,jdbcType=VARCHAR},
+      belong_house_id = #{belongHouseId,jdbcType=BIGINT},
+      relationship = #{relationship,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=VARCHAR},
+      birthday = #{birthday,jdbcType=TIMESTAMP},
+      telephone = #{telephone,jdbcType=VARCHAR},
+      memo = #{memo,jdbcType=VARCHAR}
+      birthday_flag = #{birthdayFlag,jdbcType=VARCHAR}      
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

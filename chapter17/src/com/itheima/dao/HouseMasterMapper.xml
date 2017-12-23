@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.dao.HouseMasterMapper" >
+  <resultMap id="BaseResultMap" type="com.itheima.po.HouseMaster" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="birthday" property="birthday" jdbcType="TIMESTAMP" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="telephone" property="telephone" jdbcType="VARCHAR" />
+    <result column="memo" property="memo" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, sex, address, telephone, memo,DATE_FORMAT(birthday,'%Y-%m-%d')as birthday
+  </sql>
+  
+  	<!-- 分页查询  -->
+	<select id="searchPage"
+		parameterType="com.itheima.po.HouseMasterSearcher"
+		resultMap="BaseResultMap">
+		select
+		   <include refid="Base_Column_List" />
+		from
+		t_house_master
+		<where>
+			  <if test="id != null and id !=''" >
+		        id = #{id,jdbcType=BIGINT}
+		      </if>		
+			  <if test="name != null" >
+		       and  name = #{name,jdbcType=VARCHAR}
+		      </if>
+		      <if test="sex != null" >
+		        and sex = #{sex,jdbcType=VARCHAR}
+		      </if>
+		      <if test="month != null and month!=''" >
+		        and month(birthday) = #{month}
+		      </if>
+		      <if test="day != null and day!=''" >
+		        and day(birthday) = #{day}
+		      </if>			           
+		      <if test="telephone != null" >
+		        and telephone = #{telephone,jdbcType=VARCHAR}
+		      </if>
+	</where>
+		order by ID DESC
+	</select>
+	
+<!-- 查询所有 -->
+  <select id="listAll" resultMap="BaseResultMap" >
+  select
+      <include refid="Base_Column_List" />
+from
+		t_house_master
+		where 1=1
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_house_master
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_house_master
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.itheima.po.HouseMaster" >
+    insert into t_house_master (id, name, sex, 
+      birthday, address, telephone, 
+      memo)
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR}, 
+      #{birthday,jdbcType=TIMESTAMP}, #{address,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, 
+      #{memo,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.itheima.po.HouseMaster" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    insert into t_house_master
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="birthday != null" >
+        birthday,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="telephone != null" >
+        telephone,
+      </if>
+      <if test="memo != null" >
+        memo,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null" >
+        #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null" >
+        #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        #{memo,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.itheima.po.HouseMaster" >
+    update t_house_master
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="birthday != null" >
+        birthday = #{birthday,jdbcType=TIMESTAMP},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null" >
+        telephone = #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null" >
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.itheima.po.HouseMaster" >
+    update t_house_master
+    set name = #{name,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=VARCHAR},
+      birthday = #{birthday,jdbcType=TIMESTAMP},
+      address = #{address,jdbcType=VARCHAR},
+      telephone = #{telephone,jdbcType=VARCHAR},
+      memo = #{memo,jdbcType=VARCHAR}
+     where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
